@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>templates/board/board_map</title>
+  <!-- Latest compiled and minified CSS -->
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey={{APIKEY}}&libraries=services,clusterer,drawing"></script>
+
+  <style>
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+</style>
+</head>
+<body>
+  {# top_menu.html을 포함한다 #}
+  {% include '/include/top_menu.html' %}
+  <div class="row">
+    <div class="col-sm-1">
+    </div>
+    <div class="col-sm-2.5">
+      <div class="bg-light border-right" id="sidebar-wrapper">
+        <form class="form-inline" action="/search">
+          <input class="form-control mr-sm-2" type="text" placeholder="위치를 검색하세요" name="search" value="{{search}}">
+          <button class="btn btn-success" type="submit">검색</button>
+        </form>
+        <br>
+        <br>
+        <br>
+        <h2>장애인용 화장실</h2>
+        <form action="/search">
+          <div class="custom-control custom-checkbox mb-3">
+            <input type="checkbox" class="custom-control-input" id="helpyes" name="example1">
+            <label class="custom-control-label" for="helpyes">있음</label>
+          </div>
+          <br>
+        </form>
+        <form action="/search">
+          <div class="custom-control custom-checkbox mb-3">
+            <input type="checkbox" class="custom-control-input" id="helpno" name="example2">
+            <label class="custom-control-label" for="helpno">없음</label>
+          </div>
+          <br>
+        </form>
+        <div class="list-group list-group-flush">
+          <br>
+          <h2>어린이용 화장실</h2>
+          <form action="/search">
+            <div class="custom-control custom-checkbox mb-3">
+              <input type="checkbox" class="custom-control-input" id="childyes" name="example3">
+              <label class="custom-control-label" for="childyes">있음</label>
+            </div>
+            <br>
+          </form>
+          <form action="/search">
+            <div class="custom-control custom-checkbox mb-3">
+              <input type="checkbox" class="custom-control-input" id="childno" name="example4">
+              <label class="custom-control-label" for="childno">없음</label>
+            </div>
+            <br>
+          </form>
+          <div class='right-box'><button type="button" class="btn btn-success">검색</button></div>
+          <style>
+          .right-box {
+            float: right;
+          }
+        </style>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-8">
+    <h3>화장실 지도</h3>
+    <br>
+
+    <div class="row">
+      <div class="col-12">
+        <div id="map" style="width:100%;height:400px;"></div>
+      </div>
+    </div>
+    <div class="row mt-3">
+      <div class="col-12">
+        <table class="table" id="search-table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">이름</th>
+              <th scope="col">지역</th>
+              <th scope="col">좌표</th>
+            </tr>
+          </thead>
+          <tbody>
+  {% for obj in content_list %}
+            <tr data-lat='{{obj.LATI}}' data-lang='{{obj.LONGTI}}'>
+              <td>{{obj.toilet_idx}}</td>
+              <td>{{obj.TNAME}}</td>
+              <td>{{obj.ADDR_DONG}}</td>
+              <td>{{obj.LATI}}, {{obj.LONGTI}}</td>
+            </tr>
+  {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      $("#search-table tr").on('click', function(){
+        lat = $(this).data('lat')
+        lang = $(this).data('lang')
+        var moveLatLon = new kakao.maps.LatLng(lat, lang);
+        map.panTo(moveLatLon);
+      });
+
+
+      var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+      mapOption = {
+              center: new kakao.maps.LatLng(37.321206, 127.128338), // 지도의 중심좌표
+              level: 3 // 지도의 확대 레벨
+            };
+
+      var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+      // 마커를 표시할 위치와 title 객체 배열입니다
+      var positions = [
+      {% for obj in content_list %}
+      {
+        title: '{{obj.toilet_idx}}',
+        content:'<div>{{obj.TNAME}}</div>',
+        latlng: new kakao.maps.LatLng({{obj.LATI}}, {{obj.LONGTI}})
+      },
+      {% endfor %}
+      ];
+
+      // 마커 이미지의 이미지 주소입니다
+      var imageSrc = "http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+      for (var i = 0; i < positions.length; i ++) {
+
+          // 마커 이미지의 이미지 크기 입니다
+          var imageSize = new kakao.maps.Size(24, 35);
+
+          // 마커 이미지를 생성합니다
+          var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+          // 마커를 생성합니다
+          var marker = new kakao.maps.Marker({
+              map: map, // 마커를 표시할 지도
+              position: positions[i].latlng, // 마커를 표시할 위치
+              image : markerImage // 마커 이미지
+            });
+          var infowindow = new kakao.maps.InfoWindow({
+              content: positions[i].content // 인포윈도우에 표시할 내용
+            });
+          kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+          kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+        }
+      // 인포윈도우를 표시하는 클로저를 만드는 함수입니다
+      function makeOverListener(map, marker, infowindow) {
+        return function() {
+          infowindow.open(map, marker);
+        };
+      }
+
+      // 인포윈도우를 닫는 클로저를 만드는 함수입니다
+      function makeOutListener(infowindow) {
+        return function() {
+          infowindow.close();
+        };
+      }
+    </script>
+
+
+
+</body>
+</html>

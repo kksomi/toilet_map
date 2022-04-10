@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+
+<body>
+{# top_menu.html을 포함한다 #}
+    {% include '/include/top_menu.html' %}
+
+<!-- Full Page Image Header with Vertically Centered Content -->
+<header class="masthead">
+  <div class="container h-100">
+    <div class="row h-100 align-items-center">
+      <div class="col-12 text-center">
+        <h1 class="font-weight-light">당신의 화장실을 찾으세요!</h1>
+          <br>
+        <a href="/board_map" button type="button" class="btn btn-primary btn-lg">지금 시작하기</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Page Content
+<section class="py-5">
+  <div class="container">
+    <h2 class="font-weight-light">Page Content</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus ab nulla dolorum autem nisi officiis blanditiis voluptatem hic, assumenda aspernatur facere ipsam nemo ratione cumque magnam enim fugiat reprehenderit expedita.</p>
+  </div>
+</section>
+-->
+<style>
+    .masthead {
+  height: 100vh;
+  min-height: 500px;
+  background-image: url('https://source.unsplash.com/BtbjCFUvBXs/1920x1080');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+</style>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>templates/board/board_map</title>
+    <!-- Latest compiled and minified CSS -->
+    <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey={{APIKEY}}&libraries=services,clusterer,drawing"></script>
+
+    <style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+{# top_menu.html을 포함한다 #}
+    {% include '/include/top_menu.html' %}
+    <div class="row">
+        <div class="col-sm-1">
+        </div>
+        <div class="col-sm-2.5">
+            <div class="bg-light border-right" id="sidebar-wrapper">
+                <form class="form-inline" action="/search">
+    <input class="form-control mr-sm-2" type="text" placeholder="위치를 검색하세요" name="search">
+    <button class="btn btn-success" type="submit">검색</button>
+                </form>
+                <br>
+                <br>
+                <br>
+                <h2>장애인용 화장실</h2>
+                <form action="/search">
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="helpyes" name="example1">
+                        <label class="custom-control-label" for="helpyes">있음</label>
+                    </div>
+                    <br>
+                </form>
+                <form action="/search">
+                    <div class="custom-control custom-checkbox mb-3">
+                        <input type="checkbox" class="custom-control-input" id="helpno" name="example2">
+                        <label class="custom-control-label" for="helpno">없음</label>
+                    </div>
+                    <br>
+                </form>
+                <div class="list-group list-group-flush">
+                    <br>
+                    <h2>어린이용 화장실</h2>
+                    <form action="/search">
+                            <div class="custom-control custom-checkbox mb-3">
+                                <input type="checkbox" class="custom-control-input" id="childyes" name="example3">
+                                <label class="custom-control-label" for="childyes">있음</label>
+                            </div>
+                        <br>
+                    </form>
+                    <form action="/search">
+                        <div class="custom-control custom-checkbox mb-3">
+                            <input type="checkbox" class="custom-control-input" id="childno" name="example4">
+                            <label class="custom-control-label" for="childno">없음</label>
+                        </div>
+                        <br>
+                    </form>
+                    <div class='right-box'><button type="button" class="btn btn-success">검색</button></div>
+                    <style>
+                    .right-box {
+                    float: right;
+                    }
+                    </style>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <h3>화장실 지도</h3>
+            <br>
+
+	<div id="map" style="width:850px;height:400px;"></div>
+	<script>
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+    mapOption = {
+        center: new kakao.maps.LatLng(37.321206, 127.128338), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };
+
+var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+// 마커를 표시할 위치와 title 객체 배열입니다
+var positions = [
+{% for obj in content_list %}
+    {
+        title: '{{obj.toilet_idx}}',
+        content:'<div>{{obj.TNAME}}</div>',
+        latlng: new kakao.maps.LatLng({{obj.LATI}}, {{obj.LONGTI}})
+    },
+{% endfor %}
+    {
+        title: '단국대학교',
+        content:'<div>hi</div>',
+        latlng: new kakao.maps.LatLng(37.321206, 127.128338)
+    }
+                ];
+
+// 마커 이미지의 이미지 주소입니다
+var imageSrc = "http://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+for (var i = 0; i < positions.length; i ++) {
+
+    // 마커 이미지의 이미지 크기 입니다
+    var imageSize = new kakao.maps.Size(24, 35);
+
+    // 마커 이미지를 생성합니다
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        map: map, // 마커를 표시할 지도
+        position: positions[i].latlng, // 마커를 표시할 위치
+        image : markerImage // 마커 이미지
+    });
+    var infowindow = new kakao.maps.InfoWindow({
+        content: positions[i].content // 인포윈도우에 표시할 내용
+    });
+    kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+    kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+}
+// 인포윈도우를 표시하는 클로저를 만드는 함수입니다
+function makeOverListener(map, marker, infowindow) {
+    return function() {
+        infowindow.open(map, marker);
+    };
+}
+
+// 인포윈도우를 닫는 클로저를 만드는 함수입니다
+function makeOutListener(infowindow) {
+    return function() {
+        infowindow.close();
+    };
+}
+
+</script>
+            <p></p>
+
+            <div class="card">
+                <div class="card-header"></div>
+                <div class="card-body">화장실 정보</div>
+                <div class="card-footer">리뷰
+                    <div class='right-box'><button type="button" class="btn btn-success">
+                        <a href="URL" onclick="window.open(this.href, '_blank', 'width=500px,height=500px,toolbars=no,scrollbars=no'); return false;">
+                        리뷰 더보기</a></button>
+                    </div>
+                    <style>
+                    .right-box {
+                    float: right;
+                    }
+                    </style>
+
+                </div>
+                <div class="card-footer">
+                    <table>
+                        <tr>
+                            <th>글쓴이</th>
+                            <th>내용</th>
+                            <th>시간</th>
+                        </tr>
+                        <tr>
+                            <td>홍길동</td>
+                            <td>좋습니다</td>
+                            <td>10/20 03:54</td>
+                        </tr>
+                        <tr>
+                            <td>김철수</td>
+                            <td>더럽습니다..</td>
+                            <td>10/21 12:14</td>
+                        </tr>
+
+                    </table>
+                    <form action="/search">
+                        <div class="low">
+                        <div class="col-sm-3">
+  <div class="form-group">
+    <label for="email">이름:</label>
+    <input type="email" class="form-control" id="email" placeholder="이름을 입력해주세요">
+  </div>
+                        </div>
+                        <div class="col-sm-6">
+  <div class="form-group">
+    <label for="pwd">내용:</label>
+    <input type="text" class="form-control" id="pwd" placeholder="내용을 입력해주세요">
+  </div>
+                            <button type="submit" class="btn btn-primary">글쓰기</button>
+                        </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-1"></div>
+
+</div>
+
+
+
+</body>
+</html>
